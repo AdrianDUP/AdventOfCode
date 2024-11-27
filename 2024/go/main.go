@@ -21,24 +21,19 @@ func main() {
         panic("missing arguments")
     }
 
-    for index, element := range os.Args {
-        fmt.Printf("Parsing arg index %d element %s\n", index, element)
-        switch index {
-        case 1:
-            day, errVar = strconv.Atoi(element)
-            if errVar != nil {
-                panic("invalid day")
-            }
-            fmt.Printf("Day is %d", day)
-        case 2:
-            part, errVar = strconv.Atoi(element)
-            if errVar != nil {
-                panic("Invalid part")
-            }
-        case 3:
-            filePath = element
-        }
+    day, errVar := strconv.Atoi(os.Args[1])
+
+    if errVar != nil {
+        panic("Invalid day")
     }
+
+    part, errVar := strconv.Atoi(os.Args[2])
+
+    if errVar != nil {
+        panic("Invalid part number")
+    }
+
+    filePath := os.Args[3]
 
     lines := loadFileContent(filePath)
     initSolvers()
