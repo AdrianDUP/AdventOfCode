@@ -1,6 +1,7 @@
 package main
 
 import (
+	solver2023 "aoc/pkg/2023"
 	solver2024 "aoc/pkg/2024"
 	"aoc/pkg/solver"
 	"bufio"
@@ -60,6 +61,7 @@ func main() {
 func initSolvers() {
     solvers = make(map[int]solver.SolverCollection)
     solvers[2024] = solver2024.MakeSolverCollection()
+    solvers[2023] = solver2023.MakeSolverCollection()
 }
 
 func loadFileContent(filePath string) []string {
