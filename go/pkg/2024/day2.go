@@ -14,7 +14,7 @@ func (solver SolverTwo) SolutionOne(lines []string) int {
     answer := 0
 
     for _, element := range reports {
-        if element.isSafeTemp() {
+        if isSafeReport(element.numbers) {
             answer++
         }
     }
@@ -33,7 +33,7 @@ func (solver SolverTwo) SolutionTwo(lines []string) int {
                 list = RemoveIndex(list, i)
             }
             fmt.Printf("List: %v\n", list)
-            safe, _ := isSafeReport(list)
+            safe := isSafeReport(list)
 
             if safe {
                 answer++
@@ -47,11 +47,6 @@ func (solver SolverTwo) SolutionTwo(lines []string) int {
 
 type report struct {
     numbers []int
-}
-
-func (report report) isSafeTemp() bool {
-    safe, _ := isSafeReport(report.numbers)
-    return safe
 }
 
 func (report report) isSafe() bool {
@@ -88,74 +83,7 @@ func (report report) isSafe() bool {
     return true
 }
 
-func (report report) isSafe2() bool {
-    var previousNumber int
-    previousPreviousNumber := 0
-    var isAscending bool
-    elementSkipped := false
-    skippedElementChecked := false
-    var skippedElement int
-
-    for index, element := range report.numbers {
-        // fmt.Printf("Checking element %d with previous element %d\n", element, previousNumber)
-        if index == 0 {
-            // fmt.Printf("Index 0\n")
-            previousNumber = element
-            continue
-        }
-
-        if index == 1 {
-            // fmt.Println("Index 1")
-            if element > previousNumber {
-                // fmt.Println("Is Ascending")
-                isAscending = true
-            } else {
-                // fmt.Println("Is Descending")
-                isAscending = false
-            }
-        }
-
-        isSafe := isSafeSequence(previousNumber, element, isAscending)
-
-        if (!isSafe) {
-            // fmt.Println("Not Safe")
-            if !elementSkipped {
-                // fmt.Println("No element skipped")
-                if previousPreviousNumber != 0 && isSafeSequence(previousPreviousNumber, element, isAscending) {
-                    // fmt.Println("Check 1")
-                    elementSkipped = true
-                    skippedElementChecked = true
-                    previousNumber = element
-                    continue
-                } else {
-                    skippedElement = element
-                    elementSkipped = true
-                }
-            } 
-            if elementSkipped && !skippedElementChecked {
-                if isSafeSequence(skippedElement, element, isAscending) {
-                    previousNumber = element
-                    skippedElementChecked = true
-                    continue
-                } else {
-                    return false
-                }
-            } else if !elementSkipped {
-                skippedElement = element
-                elementSkipped = true
-                continue
-            } else {
-                return false
-            }
-        }
-
-        previousNumber = element
-    }
-
-    return true
-}
-
-func isSafeReport(numbers []int) (bool, int) {
+func isSafeReport(numbers []int) bool {
     // fmt.Printf("Checking %v\n", numbers)
     var previousNumber int
     var isAscending bool
@@ -177,13 +105,13 @@ func isSafeReport(numbers []int) (bool, int) {
 
         if !isSafeSequence(previousNumber, element, isAscending) {
             // fmt.Println("Not safe")
-            return false, index
+            return false
         }
 
         previousNumber = element
     }
 
-    return true, 0
+    return true
 }
 
 func isSafeSequence(previousNumber int, nextNumber int, isAscending bool) bool {
@@ -239,5 +167,8 @@ func makeReportFromLine(line string) report {
 }
 
 func RemoveIndex(s []int, index int) []int {
-    return append(s[:index], s[index+1:]...)
+    newSlice := []int{}
+    newSlice = append(newSlice, s[:index]...)
+    newSlice = append(newSlice, s[index+1:]...)
+    return newSlice
 }
