@@ -10,11 +10,16 @@ impl Solver for Day2 {
         for line in lines {
             todo!();
         }
+
+        return answer;
     }
 
     fn solution_two(&self, lines: Vec<String>) -> i64 {
         for line in lines {
+            todo!();
         }
+
+        return 0;
     }
 }
 

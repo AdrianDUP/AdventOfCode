@@ -19,6 +19,9 @@ impl Solver for Day1 {
             right_numbers.push(right_number);
         }
 
+        left_numbers.sort();
+        right_numbers.sort();
+
         for (index,number) in left_numbers.iter().enumerate() {
             let distance = number - right_numbers[index];
 
