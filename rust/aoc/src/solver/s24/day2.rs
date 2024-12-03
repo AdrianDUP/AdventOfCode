@@ -19,11 +19,27 @@ impl Solver for Day2 {
     }
 
     fn solution_two(&self, lines: Vec<String>) -> i64 {
+        let mut answer: i64 = 0;
+
         for line in lines {
-            todo!();
+            let numbers = get_numbers(line);
+            let length = numbers.len() - 1;
+
+            if is_safe_report(numbers.clone()) {
+                answer += 1;
+                continue;
+            }
+
+            for index in (0..length).rev() {
+                let mut numbers_copy = numbers.clone();
+                numbers_copy.remove(index);
+                if is_safe_report(numbers_copy.to_vec()) {
+                    answer += 1;
+                }
+            }
         }
 
-        return 0;
+        return answer;
     }
 }
 
