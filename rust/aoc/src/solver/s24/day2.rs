@@ -5,10 +5,14 @@ pub struct Day2 {
 
 impl Solver for Day2 {
     fn solution_one(&self, lines: Vec<String>) -> i64 {
-        let answer: i64 = 0;
+        let mut answer: i64 = 0;
 
         for line in lines {
-            todo!();
+            let numbers = get_numbers(line);
+            
+            if is_safe_report(numbers) {
+                answer += 1;
+            }
         }
 
         return answer;
@@ -23,22 +27,24 @@ impl Solver for Day2 {
     }
 }
 
+fn get_numbers(line: String) -> Vec<i64> {
+    return line.split_whitespace()
+        .map(|e| e.parse::<i64>().unwrap())
+        .collect();
+}
+
 fn is_safe_report(numbers: Vec<i64>) -> bool {
-    let mut previous_number: i64;
-    let mut is_ascending: bool;
-    
+    let mut previous_number: i64 = 0;
+    let mut is_ascending: bool = false;
+
     for (index, number) in numbers.iter().enumerate() {
         if index == 0 {
             previous_number = *number;
             continue;
-        } else {
-            previous_number = 0;
         }
 
         if index == 1 {
             is_ascending = *number > previous_number;
-        } else {
-            is_ascending = true;
         }
 
         if !is_safe_sequence(previous_number, *number, is_ascending) {
