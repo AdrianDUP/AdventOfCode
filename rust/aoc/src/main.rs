@@ -1,6 +1,6 @@
 use std::{collections::HashMap, env, fs};
 
-use aoc::solver::{s24, solver::Solver};
+use aoc::solver::{s23, s24, solver::Solver};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -28,7 +28,7 @@ fn main() {
 }
 
 fn read_file_lines(year: u16, day: u8) -> Vec<String> {
-    let file_path = format!("./inputs/{year}/day{day}_test.txt");
+    let file_path = format!("./inputs/{year}/day{day}.txt");
 
     return fs::read_to_string(file_path)
         .unwrap()
@@ -40,6 +40,10 @@ fn read_file_lines(year: u16, day: u8) -> Vec<String> {
 fn get_solvers() -> HashMap<u16, HashMap<u8, Box<dyn Solver>>> {
     let mut solvers: HashMap<u16, HashMap<u8, Box<dyn Solver>>> = HashMap::new();
 
+    let mut s23_solvers: HashMap<u8, Box<dyn Solver>> = HashMap::new();
+
+    s23_solvers.insert(1, Box::new(s23::day1::Day1{}));
+
     let mut s24_solvers: HashMap<u8, Box<dyn Solver>> = HashMap::new();
 
     s24_solvers.insert(1, Box::new(s24::day1::Day1{}));
@@ -47,6 +51,7 @@ fn get_solvers() -> HashMap<u16, HashMap<u8, Box<dyn Solver>>> {
     s24_solvers.insert(3, Box::new(s24::day3::Day3{}));
     s24_solvers.insert(4, Box::new(s24::day4::Day4{}));
 
+    solvers.insert(2023, s23_solvers);
     solvers.insert(2024, s24_solvers);
 
     return solvers;
