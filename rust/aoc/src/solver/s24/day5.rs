@@ -8,30 +8,8 @@ pub struct Day5 {
 impl Solver for Day5 {
     fn solution_one(&self, lines: Vec<String>) -> i64 {
         let mut answer: i64 = 0;
-        let mut has_all_rules = false;
-        let mut rules: HashMap<i64, Vec<i64>> = HashMap::new();
-        let mut manuals: Vec<Vec<i64>> = vec![];
 
-        for line in lines {
-            if line == "" {
-                has_all_rules = true;
-                continue;
-            }
-            if !has_all_rules {
-                let (left, right) = get_rule_numbers(line);
-
-                match rules.get_mut(&left) {
-                    Some(rule) => {
-                        rule.push(right);
-                    },
-                    None => {
-                        rules.insert(left, vec![right]);
-                    }
-                }
-            } else {
-                manuals.push(get_manual_numbers(line));
-            }
-        }
+        let (rules,manuals) = get_rules_and_manuals(lines);
 
         for manual in manuals {
             if is_correct_update(rules.clone(), manual.clone()) {
