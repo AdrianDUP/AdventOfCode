@@ -6,15 +6,22 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let solvers: HashMap<u16, HashMap<u8, Box<dyn Solver>>> = get_solvers();
 
-    if args.len() != 4 {
+    if args.len() < 4 {
         println!("Arguments do not equal 4");
     }
 
     let year: u16 = args.get(1).unwrap().parse::<u16>().unwrap();
     let day: u8 = args.get(2).unwrap().parse::<u8>().unwrap();
     let part: u8 = args.get(3).unwrap().parse::<u8>().unwrap();
+    let test:bool;
 
-    let file_lines = read_file_lines(year, day);
+    if args.len() == 5 {
+        test = true;
+    } else {
+        test = false;
+    }
+
+    let file_lines = read_file_lines(year, day, test);
 
     let solver = solvers.get(&year).unwrap().get(&day).unwrap();
 
@@ -27,8 +34,13 @@ fn main() {
     println!("Answer for {year} day {day} part {part} is {answer}");
 }
 
-fn read_file_lines(year: u16, day: u8) -> Vec<String> {
-    let file_path = format!("./inputs/{year}/day{day}.txt");
+fn read_file_lines(year: u16, day: u8, test: bool) -> Vec<String> {
+    let file_path: String;
+    if test {
+        file_path = format!("./inputs/{year}/day{day}_test.txt");
+    } else {
+        file_path = format!("./inputs/{year}/day{day}.txt");
+    }
 
     return fs::read_to_string(file_path)
         .unwrap()
@@ -50,6 +62,7 @@ fn get_solvers() -> HashMap<u16, HashMap<u8, Box<dyn Solver>>> {
     s24_solvers.insert(2, Box::new(s24::day2::Day2{}));
     s24_solvers.insert(3, Box::new(s24::day3::Day3{}));
     s24_solvers.insert(4, Box::new(s24::day4::Day4{}));
+    s24_solvers.insert(5, Box::new(s24::day5::Day5{}));
 
     solvers.insert(2023, s23_solvers);
     solvers.insert(2024, s24_solvers);

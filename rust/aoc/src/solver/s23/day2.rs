@@ -1,10 +1,10 @@
 use crate::solver::solver::{find_all_by_regex, Solver};
 
 
-pub struct Day1{
+pub struct Day2{
 }
 
-impl Solver for Day1 {
+impl Solver for Day2 {
     fn solution_one(&self, lines: Vec<String>) -> i64 {
         let mut answer: i64 = 0;
 

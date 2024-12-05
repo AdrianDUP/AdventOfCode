@@ -8,3 +8,15 @@ pub fn find_all_by_regex(input: String, regex: &str) -> Vec<String> {
     
     return regx.find_iter(&input).map(|e| String::from(e.as_str())).collect();
 }
+
+pub fn split_string_into_characters(line: String) -> Vec<String> {
+    return line.split("")
+        .map(String::from)
+        .collect();
+}
+
+pub fn split_string_into_parts(line: String) -> Vec<String> {
+    return line.split_whitespace()
+        .map(String::from)
+        .collect();
+}
