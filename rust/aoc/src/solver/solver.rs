@@ -11,6 +11,7 @@ pub fn find_all_by_regex(input: String, regex: &str) -> Vec<String> {
 
 pub fn split_string_into_characters(line: String) -> Vec<String> {
     return line.split("")
+        .filter(|e| *e != "")
         .map(String::from)
         .collect();
 }

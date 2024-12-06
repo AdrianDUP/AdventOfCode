@@ -63,6 +63,7 @@ fn get_solvers() -> HashMap<u16, HashMap<u8, Box<dyn Solver>>> {
     s24_solvers.insert(3, Box::new(s24::day3::Day3{}));
     s24_solvers.insert(4, Box::new(s24::day4::Day4{}));
     s24_solvers.insert(5, Box::new(s24::day5::Day5{}));
+    s24_solvers.insert(6, Box::new(s24::day6::Day6{}));
 
     solvers.insert(2023, s23_solvers);
     solvers.insert(2024, s24_solvers);
