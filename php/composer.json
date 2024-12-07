@@ -1,0 +1,21 @@
+{
+    "name": "adriandup/aoc",
+    "type": "project",
+    "require": {
+        "nesbot/carbon": "^3.8",
+        "blank-framework/file-path-router": "^2.0"
+    },
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Adriandup\\Aoc\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Adrian du Plessis",
+            "email": "8139635+AdrianDUP@users.noreply.github.com"
+        }
+    ],
+    "minimum-stability": "stable"
+}
