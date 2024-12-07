@@ -15,19 +15,32 @@ impl Solver for Day6 {
 
         let (mut x, mut y) = find_start(grid.clone());
 
+        positions.entry(format!("{x},{y}")).or_insert(1);
+
         dbg!(x, y);
 
         let mut direction = "up";
 
-        while x >= 0 && x < grid[0].len().try_into().unwrap() && y >= 0 && y < grid.len().try_into().unwrap() {
-            dbg!(moves);
-            let (next_x, next_y) = next_pos(x, y, direction);
+        let row_limit: i64 = grid.len().try_into().unwrap();
+        let column_limit: i64 = grid[0].len().try_into().unwrap();
 
-            let next_element: String = grid[y as usize][x as usize].clone();
+        dbg!(row_limit, column_limit);
+
+        while x > 0 && x < column_limit-1 && y > 0 && y < row_limit-1 {
+            // dbg!(moves);
+            let (next_x, next_y) = next_pos(x, y, direction);
+            dbg!(next_x, next_y);
+
+            let next_row: Vec<String> = grid[next_y as usize].clone();
+            let next_element: String = next_row[next_x as usize].clone();
+            dbg!(&next_element);
 
             if next_element == "#" {
+                dbg!("Turning");
                 direction = turn(direction);
+                dbg!(direction);
             } else {
+                dbg!("Logging position");
                 let position = format!("{x},{y}");
                 positions.entry(position).or_insert(1);
                 x = next_x;
@@ -35,6 +48,7 @@ impl Solver for Day6 {
                 moves += 1;
             }
         }
+
         return positions.len().try_into().unwrap();
     }
 
@@ -79,7 +93,7 @@ fn next_pos(x: i64, y: i64, direction: &str) -> (i64, i64) {
     return match direction {
         "up" => (x, y-1),
         "right" => (x+1,y),
-        "down" => (x,y-1),
+        "down" => (x,y+1),
         "left" => (x-1,y),
         _ => (x,y),
     };
