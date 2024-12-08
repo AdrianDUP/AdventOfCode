@@ -18,6 +18,7 @@ pub fn split_string_into_characters(line: String) -> Vec<String> {
 
 pub fn split_string_into_parts(line: String) -> Vec<String> {
     return line.split_whitespace()
+        .filter(|x| *x != "")
         .map(String::from)
         .collect();
 }

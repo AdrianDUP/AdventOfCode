@@ -7,7 +7,6 @@ pub struct Day6 {
 
 impl Solver for Day6 {
     fn solution_one(&self, lines: Vec<String>) -> i64 {
-        let mut moves: u64 = 0;
         let mut positions: HashMap<String, u8> = HashMap::new();
 
         let grid = get_grid(lines);
@@ -27,7 +26,6 @@ impl Solver for Day6 {
         dbg!(row_limit, column_limit);
 
         while x > 0 && x < column_limit-1 && y > 0 && y < row_limit-1 {
-            // dbg!(moves);
             let (next_x, next_y) = next_pos(x, y, direction);
             dbg!(next_x, next_y);
 
@@ -45,14 +43,19 @@ impl Solver for Day6 {
                 positions.entry(position).or_insert(1);
                 x = next_x;
                 y = next_y;
-                moves += 1;
             }
         }
 
         return positions.len().try_into().unwrap();
     }
 
-    fn solution_two(&self, _lines: Vec<String>) -> i64 {
+    fn solution_two(&self, lines: Vec<String>) -> i64 {
+        let mut answer: i64 = 0;
+
+        let grid = get_grid(lines);
+
+        let barries
+
         return 0;
     }
 }
@@ -97,4 +100,25 @@ fn next_pos(x: i64, y: i64, direction: &str) -> (i64, i64) {
         "left" => (x-1,y),
         _ => (x,y),
     };
+}
+
+fn hits_barrier(grid: Vec<Vec<String>>, x: i64, y: i64, direction: &str) -> bool {
+    if direction == "up" && y == 0 {
+        return false;
+    } else if direction == "right" && x == grid[0].len() as i64 - 1 {
+        return false;
+    } else if direction == "down" && y == grid.len() as i64 - 1 {
+        return false;
+    } else if direction == "left" && x == 0 {
+        return false;
+    }
+
+    let (next_x,next_y) = next_pos(x, y, direction);
+    let element = grid[next_y as usize][next_x as usize].clone();
+
+    if element == "#" {
+        return true;
+    } else {
+        return hits_barrier(grid, next_x, next_y, direction);
+    }
 }
