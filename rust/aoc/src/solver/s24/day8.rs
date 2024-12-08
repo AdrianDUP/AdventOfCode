@@ -33,13 +33,15 @@ impl Solver for Day8 {
 
         let mut antinodes: Vec<Coordinate> = vec![];
 
-        for coordinate_list in antennas.iter() {
+        for (char,coordinate_list) in antennas.iter() {
             for i in 0..coordinate_list.len() { 
                 if i == coordinate_list.len() - 1 {
                     continue;
                 }
+                let coordinate_one = coordinate_list[i as usize];
                 for j in i+1..coordinate_list.len() {
-
+                    let coordinate_two = coordinate_list[j];
+                    let (next_point_one, next_point_two) = get_next_points(coordinate_one, coordinate_two);
                 }
             }
         }
@@ -62,15 +64,32 @@ fn get_grid(lines: Vec<String>) -> Grid {
     return grid;
 }
 
-fn get_next_points(coordinate_one: Coordinate, coordinate_two: Coordinate) {
+fn get_next_points(coordinate_one: Coordinate, coordinate_two: Coordinate) -> (Coordinate, Coordinate) {
     let diff_col = coordinate_one.col - coordinate_two.col;
     let diff_row = coordinate_one.row - coordinate_two.row;
 
+    let new_coordinate_one: Coordinate;
+    let new_coordinate_two: Coordinate;
+
     if diff_col > 0 && diff_row > 0 {
-        let new_coordinate_one = Coordinate{
+        new_coordinate_one = Coordinate{
             row: coordinate_one.row - diff_row,
             col: coordinate_one.col - diff_col
         };
+        new_coordinate_two = Coordinate{
+            row: coordinate_two.row + diff_row,
+            col: coordinate_two.col + diff_row
+        };
     } else {
+        new_coordinate_one = Coordinate{
+            row: coordinate_one.row + diff_row,
+            col: coordinate_one.col + diff_col
+        };
+        new_coordinate_two = Coordinate{
+            row: coordinate_two.row - diff_row,
+            col: coordinate_two.col - diff_row
+        };
     }
+
+    return (new_coordinate_one,new_coordinate_two);
 }
