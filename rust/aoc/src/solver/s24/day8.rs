@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use grid::Grid;
+use grid::{Grid, grid};
 
 use crate::solver::solver::{split_string_into_characters, Solver};
 
@@ -16,45 +16,43 @@ impl Solver for Day8 {
     fn solution_one(&self, lines: Vec<String>) -> i64 {
         let grid = get_grid(lines);
 
-        let mut antennas: HashMap<String, Vec<Coordinate>> = HashMap::new();
+        let antennas: HashMap<String, Vec<Coordinate>> = HashMap::new();
 
         for ((row,col), item) in grid.indexed_iter() {
             if item == "." {
                 continue;
             }
 
-            let coord = Coordinate{
-                row,
-                col
+            let _coord = Coordinate{
+                row: row.try_into().unwrap(),
+                col: col.try_into().unwrap()
             };
-
-            antennas.entry(item).and_modify(|e| e.push(coord)).or_insert(vec![coord]);
         }
 
-        let mut antinodes: Vec<Coordinate> = vec![];
+        let _antinodes: Vec<Coordinate> = vec![];
 
-        for (char,coordinate_list) in antennas.iter() {
+        for (_char,coordinate_list) in antennas.iter() {
             for i in 0..coordinate_list.len() { 
                 if i == coordinate_list.len() - 1 {
                     continue;
                 }
-                let coordinate_one = coordinate_list[i as usize];
-                for j in i+1..coordinate_list.len() {
-                    let coordinate_two = coordinate_list[j];
-                    let (next_point_one, next_point_two) = get_next_points(coordinate_one, coordinate_two);
-                }
+                // let coordinate_one = coordinate_list[i as usize];
+                // for j in i+1..coordinate_list.len() {
+                //     let coordinate_two = coordinate_list[j];
+                //     let (_next_point_one, _next_point_two) = get_next_points(coordinate_one, coordinate_two);
+                // }
             }
         }
 
         return 0;
     }
 
-    fn solution_two(&self, lines: Vec<String>) -> i64 {
+    fn solution_two(&self, _lines: Vec<String>) -> i64 {
         return 0;
     }
 }
 
-fn get_grid(lines: Vec<String>) -> Grid {
+fn get_grid(lines: Vec<String>) -> Grid<String> {
     let mut grid: Grid<String> = grid![];
 
     for line in lines {

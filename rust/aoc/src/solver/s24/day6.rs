@@ -50,11 +50,9 @@ impl Solver for Day6 {
     }
 
     fn solution_two(&self, lines: Vec<String>) -> i64 {
-        let mut answer: i64 = 0;
+        let _answer: i64 = 0;
 
-        let grid = get_grid(lines);
-
-        let barries
+        let _grid = get_grid(lines);
 
         return 0;
     }
