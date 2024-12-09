@@ -139,8 +139,14 @@ fn move_elements_to_front(map: Vec<String>) -> Vec<String> {
     return fixed_map;
 }
 
-fn move_file_blocks(map: Vec<Block>) -> Vec<String> {
+fn move_file_blocks(mut map: Vec<Block>) -> Vec<String> {
+    let mut first_pass: Vec<Block>;
+    let mut updating_map: Vec<Block> = map;
 
+    for (index, element) in map.iter_mut().enumerate().rev() {
+        for (index2, element2) in map.iter_mut().enumerate() {
+        }
+    }
 }
 
 fn is_sorted(map: Vec<String>) -> bool {
