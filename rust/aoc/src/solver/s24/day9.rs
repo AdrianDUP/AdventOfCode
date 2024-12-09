@@ -5,6 +5,7 @@ use crate::solver::solver::Solver;
 pub struct Day9 {
 }
 
+#[derive(Clone)]
 struct Block {
     is_empty: bool,
     count: u64,
@@ -43,17 +44,47 @@ impl Solver for Day9 {
     }
 
     fn solution_two(&self, lines: Vec<String>) -> i64 {
+        let mut answer: i64 = 0;
+        dbg!("Starting");
+
         for line in lines {
             let characters: Vec<u64> = line.split("")
                 .filter(|x| *x != "")
                 .map(|x| String::from(x).parse::<u64>().unwrap())
                 .collect();
+            dbg!("Characters collected");
 
             let map: Vec<Block> = expand_map2(characters);
+            dbg!("Map expanded");
+            let fixed_map = move_file_blocks(map.clone(), map.clone(), map.len());
+            dbg!("Moved map made");
+            let mut final_map: Vec<String> = vec![];
+            
+            for block in fixed_map {
+                let char: String;
 
-            dbg!(map);
+                if block.is_empty {
+                    char = ".".to_string();
+                } else {
+                    char = block.number.to_string();
+                }
+                
+                for _ in 0..block.count {
+                    final_map.push(char.clone());
+                }
+            }
+            dbg!("Final map made", final_map);
+            return answer;
+            
+            for (index, number) in final_map.iter().enumerate() {
+                if number == "." {
+                    continue;
+                }
+
+                answer += index as i64 * number.parse::<i64>().unwrap();
+            }
         }
-        return 0;
+        return answer;
     }
 }
 
@@ -139,7 +170,7 @@ fn move_elements_to_front(map: Vec<String>) -> Vec<String> {
     return fixed_map;
 }
 
-fn move_file_blocks(mut map_left: Vec<Block>, map_added: Vec<Block>) -> Vec<String> {
+fn move_file_blocks(mut map_left: Vec<Block>, mut map_added: Vec<Block>, current_index: usize) -> Vec<Block> {
     if map_left.is_empty() {
         return map_added;
     }
@@ -147,18 +178,27 @@ fn move_file_blocks(mut map_left: Vec<Block>, map_added: Vec<Block>) -> Vec<Stri
     let next_element = map_left.pop().unwrap();
 
     if next_element.is_empty {
-        return move_file_blocks(map_left, map_added);
+        return move_file_blocks(map_left, map_added, current_index - 1);
     } else {
-        let mut moved: bool = false;
-
-        while !moved {
-            let start = map_left.remove(0);
-
-            if !start.is_empty {
-                map_added.push(start);
-            } else if start.count >= next_element.count {
+        for (index, element) in map_added.iter_mut().enumerate() {
+            if element.is_empty {
+                if element.count < next_element.count {
+                    continue;
+                } else {
+                    if element.count == next_element.count {
+                        map_added[index] = next_element;
+                        map_added[current_index].is_empty = true;
+                        break;
+                    } else {
+                        element.count -= next_element.count;
+                       map_added.insert(index, next_element);
+                        map_added[current_index].is_empty = true;
+                        break;
+                    }
+                }
             }
         }
+        return move_file_blocks(map_left, map_added, current_index - 1);
     }
 }
 
