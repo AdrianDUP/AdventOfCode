@@ -73,8 +73,7 @@ impl Solver for Day9 {
                     final_map.push(char.clone());
                 }
             }
-            dbg!("Final map made", final_map);
-            return answer;
+            dbg!("Final map made", &final_map);
             
             for (index, number) in final_map.iter().enumerate() {
                 if number == "." {
@@ -170,48 +169,45 @@ fn move_elements_to_front(map: Vec<String>) -> Vec<String> {
     return fixed_map;
 }
 
-fn move_file_blocks(mut map_left: Vec<Block>, mut map_added: Vec<Block>, current_index: usize) -> Vec<Block> {
+fn move_file_blocks(mut map_left: Vec<Block>, mut map_added: Vec<Block>, mut current_index: usize) -> Vec<Block> {
     if map_left.is_empty() {
         return map_added;
     }
 
     let next_element = map_left.pop().unwrap();
+    current_index -= 1;
+
+    dbg!(&next_element, current_index);
 
     if next_element.is_empty {
-        return move_file_blocks(map_left, map_added, current_index - 1);
+        return move_file_blocks(map_left, map_added, current_index);
     } else {
         for (index, element) in map_added.iter_mut().enumerate() {
+            dbg!(index, &element);
+            if index >= current_index {
+                break;
+            }
             if element.is_empty {
                 if element.count < next_element.count {
                     continue;
                 } else {
                     if element.count == next_element.count {
+                        dbg!("Empty one");
                         map_added[index] = next_element;
                         map_added[current_index].is_empty = true;
                         break;
                     } else {
+                        dbg!("Empty two");
                         element.count -= next_element.count;
-                       map_added.insert(index, next_element);
-                        map_added[current_index].is_empty = true;
+                        map_added.insert(index, next_element);
+                        current_index -= 1;
+                        map_added[current_index+1].is_empty = true;
                         break;
                     }
                 }
             }
         }
-        return move_file_blocks(map_left, map_added, current_index - 1);
+        dbg!(&map_left, &map_added);
+        return move_file_blocks(map_left, map_added, current_index);
     }
-}
-
-fn is_sorted(map: Vec<String>) -> bool {
-    let mut space_found: bool = false;
-
-    for element in map {
-        if element != "." && space_found {
-            return false;
-        } else if element == "." {
-            space_found = true;
-        }
-    }
-
-    return true;
 }
