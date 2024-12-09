@@ -139,12 +139,25 @@ fn move_elements_to_front(map: Vec<String>) -> Vec<String> {
     return fixed_map;
 }
 
-fn move_file_blocks(mut map: Vec<Block>) -> Vec<String> {
-    let mut first_pass: Vec<Block>;
-    let mut updating_map: Vec<Block> = map;
+fn move_file_blocks(mut map_left: Vec<Block>, map_added: Vec<Block>) -> Vec<String> {
+    if map_left.is_empty() {
+        return map_added;
+    }
 
-    for (index, element) in map.iter_mut().enumerate().rev() {
-        for (index2, element2) in map.iter_mut().enumerate() {
+    let next_element = map_left.pop().unwrap();
+
+    if next_element.is_empty {
+        return move_file_blocks(map_left, map_added);
+    } else {
+        let mut moved: bool = false;
+
+        while !moved {
+            let start = map_left.remove(0);
+
+            if !start.is_empty {
+                map_added.push(start);
+            } else if start.count >= next_element.count {
+            }
         }
     }
 }
