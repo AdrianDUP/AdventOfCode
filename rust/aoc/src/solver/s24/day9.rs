@@ -54,11 +54,7 @@ impl Solver for Day9 {
                 .collect();
             dbg!("Characters collected");
 
-            let map: Vec<Block> = expand_map2(characters);
-            dbg!("Map expanded");
-            let fixed_map = move_file_blocks(map.clone(), map.clone(), map.len());
-            dbg!("Moved map made");
-            let mut final_map: Vec<String> = vec![];
+            let map: Vec<String> = expand_map(characters);
             
             for block in fixed_map {
                 let char: String;
@@ -169,45 +165,68 @@ fn move_elements_to_front(map: Vec<String>) -> Vec<String> {
     return fixed_map;
 }
 
-fn move_file_blocks(mut map_left: Vec<Block>, mut map_added: Vec<Block>, mut current_index: usize) -> Vec<Block> {
-    if map_left.is_empty() {
-        return map_added;
-    }
+fn move_file_blocks(map: Vec<String>) -> Vec<String> {
+    let mut fixed_map: Vec<String> = map.clone();
 
-    let next_element = map_left.pop().unwrap();
-    current_index -= 1;
+    let mut is_in_number_block: bool = false;
+    let mut current_number: String = ".".to_string();
+    let mut number_block_start: usize = 0;
+    let mut number_block_end: usize = 0;
 
-    dbg!(&next_element, current_index);
+    let mut is_in_space_block: bool = false;
+    let mut space_block_start: usize = 0;
+    let mut space_block_end: usize = 0;
 
-    if next_element.is_empty {
-        return move_file_blocks(map_left, map_added, current_index);
-    } else {
-        for (index, element) in map_added.iter_mut().enumerate() {
-            dbg!(index, &element);
-            if index >= current_index {
-                break;
+    for (index, element) in map.iter().enumerate().rev() {
+        if element != "." {
+            if !is_in_number_block {
+                is_in_number_block = true;
+                number_block_start = index;
+                number_block_end = index;
+                current_number = element.to_string();
+                continue;
+            } else if current_number != *element {
+                number_block_end = index;
+                continue;
+            } else {
+                number_block_end = index;
+                continue;
             }
-            if element.is_empty {
-                if element.count < next_element.count {
-                    continue;
-                } else {
-                    if element.count == next_element.count {
-                        dbg!("Empty one");
-                        map_added[index] = next_element;
-                        map_added[current_index].is_empty = true;
+        } else {
+            if is_in_number_block {
+                is_in_number_block = false;
+
+                for (index1, element2) in map.iter().enumerate() {
+                    if index1 >= index {
                         break;
+                    }
+
+                    if element2 == "." {
+                        if !is_in_space_block {
+                            is_in_space_block = true;
+                            space_block_start = index1;
+                            space_block_end = index1;
+                        } else {
+                            space_block_end = index1;
+                        }
                     } else {
-                        dbg!("Empty two");
-                        element.count -= next_element.count;
-                        map_added.insert(index, next_element);
-                        current_index -= 1;
-                        map_added[current_index+1].is_empty = true;
-                        break;
+                        if is_in_space_block {
+                            is_in_space_block = false;
+
+                            let space_block_size = space_block_end - space_block_start;
+                            let number_block_size = number_block_start - number_block_end;
+                            if space_block_size >= number_block_size {
+                                let offset: usize = 0;
+                                for index in number_block_start..=number_block_end {
+                                    fixed_map.swap(index, space_block_start+offset);
+                                    return move_file_blocks(fixed_map);
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-        dbg!(&map_left, &map_added);
-        return move_file_blocks(map_left, map_added, current_index);
     }
+    return fixed_map;
 }
