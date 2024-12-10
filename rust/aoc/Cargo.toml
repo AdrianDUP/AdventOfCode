@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 diagonal = "0.1.0"
 grid = "0.15.0"
+recursive = "0.1.1"
 regex = "1.11.1"

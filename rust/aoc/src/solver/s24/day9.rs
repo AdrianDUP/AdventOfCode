@@ -2,6 +2,8 @@ use std::fmt::Debug;
 
 use crate::solver::solver::Solver;
 
+use recursive::recursive;
+
 pub struct Day9 {
 }
 
@@ -45,39 +47,19 @@ impl Solver for Day9 {
 
     fn solution_two(&self, lines: Vec<String>) -> i64 {
         let mut answer: i64 = 0;
-        dbg!("Starting");
 
         for line in lines {
             let characters: Vec<u64> = line.split("")
                 .filter(|x| *x != "")
                 .map(|x| String::from(x).parse::<u64>().unwrap())
                 .collect();
-            dbg!("Characters collected");
 
             let map: Vec<String> = expand_map(characters);
-            
-            for block in fixed_map {
-                let char: String;
 
-                if block.is_empty {
-                    char = ".".to_string();
-                } else {
-                    char = block.number.to_string();
-                }
-                
-                for _ in 0..block.count {
-                    final_map.push(char.clone());
-                }
-            }
-            dbg!("Final map made", &final_map);
-            
-            for (index, number) in final_map.iter().enumerate() {
-                if number == "." {
-                    continue;
-                }
+            let fixed_map = move_file_blocks(map);
 
-                answer += index as i64 * number.parse::<i64>().unwrap();
-            }
+            dbg!(fixed_map);
+            
         }
         return answer;
     }
@@ -165,66 +147,94 @@ fn move_elements_to_front(map: Vec<String>) -> Vec<String> {
     return fixed_map;
 }
 
-fn move_file_blocks(map: Vec<String>) -> Vec<String> {
+#[recursive]
+fn move_file_blocks(map: Vec<String>, map_left: Vec<String>) -> Vec<String> {
+    if map_left.is_empty() {
+        return map;
+    }
+
     let mut fixed_map: Vec<String> = map.clone();
 
     let mut is_in_number_block: bool = false;
     let mut current_number: String = ".".to_string();
     let mut number_block_start: usize = 0;
     let mut number_block_end: usize = 0;
+    let mut number_block_complete: bool = false;
 
     let mut is_in_space_block: bool = false;
     let mut space_block_start: usize = 0;
     let mut space_block_end: usize = 0;
+    let mut space_block_size: usize = 0;
+    let mut number_block_size: usize = 0;
+
+    let mut element: String = map_left.pop().unwrap();
+
+    let mut elements: Vec<String> = vec![];
+
+    if element == ".".to_string() {
+    }
 
     for (index, element) in map.iter().enumerate().rev() {
+        dbg!(index, element);
         if element != "." {
             if !is_in_number_block {
                 is_in_number_block = true;
+                number_block_complete = false;
                 number_block_start = index;
                 number_block_end = index;
                 current_number = element.to_string();
-                continue;
-            } else if current_number != *element {
+            } else if current_number == *element.to_string() {
                 number_block_end = index;
-                continue;
             } else {
-                number_block_end = index;
-                continue;
-            }
-        } else {
-            if is_in_number_block {
+                number_block_complete = true;
                 is_in_number_block = false;
+            }
+        } else if is_in_number_block {
+            is_in_number_block = false;
+            number_block_complete = true;
+        }
 
-                for (index1, element2) in map.iter().enumerate() {
-                    if index1 >= index {
-                        break;
-                    }
-
-                    if element2 == "." {
-                        if !is_in_space_block {
-                            is_in_space_block = true;
-                            space_block_start = index1;
-                            space_block_end = index1;
-                        } else {
-                            space_block_end = index1;
-                        }
+        if number_block_complete {
+            number_block_complete = false;
+            for (index2, element2) in fixed_map.iter().enumerate() {
+                dbg!(index2, element2);
+                if index2 >= index {
+                    dbg!(index, index2, "Index hit");
+                    break;
+                }
+                if element2 == "." {
+                    if !is_in_space_block {
+                        dbg!("Setting space block");
+                        is_in_space_block = true;
+                        space_block_start = index2;
+                        space_block_end = index2;
                     } else {
-                        if is_in_space_block {
-                            is_in_space_block = false;
-
-                            let space_block_size = space_block_end - space_block_start;
-                            let number_block_size = number_block_start - number_block_end;
-                            if space_block_size >= number_block_size {
-                                let offset: usize = 0;
-                                for index in number_block_start..=number_block_end {
-                                    fixed_map.swap(index, space_block_start+offset);
-                                    return move_file_blocks(fixed_map);
-                                }
-                            }
-                        }
+                        dbg!("Increasing space block");
+                        space_block_end = index2;
+                    }
+                } else if is_in_space_block {
+                    dbg!("Ending space block");
+                    space_block_size = space_block_end - space_block_start + 1;
+                    number_block_size = number_block_start - number_block_end + 1;
+                    dbg!(space_block_size, number_block_size);
+                    is_in_space_block = false;
+                    if space_block_size >= number_block_size {
+                        dbg!("Correct size");
+                        break;
+                    } else {
+                        dbg!("Too small");
                     }
                 }
+            }
+            if space_block_size >= number_block_size {
+                let mut offset: usize = 0;
+
+                for index3 in number_block_end..=number_block_start {
+                    dbg!("Swapping", index3, space_block_start+offset);
+                    fixed_map.swap(index3, space_block_start+offset);
+                    offset += 1;
+                }
+                return move_file_blocks(fixed_map);
             }
         }
     }

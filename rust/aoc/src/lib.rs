@@ -1,2 +1,2 @@
-#![recursion_limit = "10000"]
+#![recursion_limit = "99999"]
 pub mod solver;
