@@ -89,57 +89,63 @@ impl Solver for Day8 {
         }
 
         let mut antinodes: Vec<String> = vec![];
+
+        let grid_rows: i64 = grid.rows() as i64;
+        let grid_cols: i64 = grid.cols() as i64;
          
         for (_char, coordinate_list) in antennas.iter() {
-            dbg!("iter");
             for i in 0..coordinate_list.len() {
+                let antenna_cord = format!("{},{}", coordinate_list[i].row, coordinate_list[i].col);
+
+                if !antinodes.contains(&antenna_cord) {
+                    antinodes.push(antenna_cord);
+                }
                 if i == coordinate_list.len() - 1 {
                     continue;
                 }
                 
                 let coordinate_one = coordinate_list[i];
 
-                for j in i..coordinate_list.len() {
+                for j in i+1..coordinate_list.len() {
                     let coordinate_two = coordinate_list[j];
 
                     let diff_col = coordinate_two.col - coordinate_one.col;
                     let diff_row = coordinate_two.row - coordinate_one.row;
+                    dbg!(diff_col, diff_row);
                     
                     let mut one_in_bound: bool = true;
                     let mut two_in_bound: bool = true;
 
-                    let mut new_one: Coordinate = coordinate_one;
-                    let mut new_two: Coordinate = coordinate_two;
+                    let mut new_one: Coordinate = coordinate_one.clone();
+                    let mut new_two: Coordinate = coordinate_two.clone();
                     
                     while one_in_bound || two_in_bound {
-                        dbg!("While");
+                        dbg!(one_in_bound, two_in_bound);
                         if one_in_bound {
-                            dbg!("one");
                             new_one.row -= diff_row;
                             new_one.col -= diff_col;
 
-                            if new_one.row >= 0 && new_one.row < grid.rows() as i64 && new_one.col >= 0 && new_one.col < grid.cols() as i64 {
+                            if new_one.row >= 0 && new_one.row < grid_rows && new_one.col >= 0 && new_one.col < grid_cols {
                                 let cord = format!("{},{}", new_one.row, new_one.col);
-                                dbg!(&cord);
                                 if !antinodes.contains(&cord) {
                                     antinodes.push(cord);
                                 }
                             } else {
+                                dbg!(new_one);
                                 one_in_bound = false;
                             }
                         }
                         if two_in_bound {
-                            dbg!("two");
                             new_two.row += diff_row;
-                            new_two.row += diff_row;
+                            new_two.col += diff_col;
 
-                            if new_two.row >= 0 && new_two.row < grid.rows() as i64 && new_two.col >= 0 && new_two.col < grid.cols() as i64 {
+                            if new_two.row >= 0 && new_two.row < grid_rows && new_two.col >= 0 && new_two.col < grid_cols {
                                 let cord = format!("{},{}", new_two.row, new_two.col);
-                                dbg!(&cord);
                                 if !antinodes.contains(&cord) {
                                     antinodes.push(cord);
                                 }
                             } else {
+                                dbg!(new_two);
                                 two_in_bound = false;
                             }
                         }
@@ -147,6 +153,8 @@ impl Solver for Day8 {
                 }
             }
         }
+
+        dbg!(&antinodes);
 
         return antinodes.len().try_into().unwrap();
     }
