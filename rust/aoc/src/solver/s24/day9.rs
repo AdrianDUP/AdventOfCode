@@ -46,7 +46,7 @@ impl Solver for Day9 {
     }
 
     fn solution_two(&self, lines: Vec<String>) -> i64 {
-        let mut answer: i64 = 0;
+        let answer: i64 = 0;
 
         for line in lines {
             let characters: Vec<u64> = line.split("")
@@ -56,7 +56,7 @@ impl Solver for Day9 {
 
             let map: Vec<String> = expand_map(characters);
 
-            let fixed_map = move_file_blocks(map);
+            let fixed_map = move_file_blocks(map.clone(), map.clone());
 
             dbg!(fixed_map);
             
@@ -234,7 +234,7 @@ fn move_file_blocks(map: Vec<String>, map_left: Vec<String>) -> Vec<String> {
                     fixed_map.swap(index3, space_block_start+offset);
                     offset += 1;
                 }
-                return move_file_blocks(fixed_map);
+                return move_file_blocks(fixed_map, map_left);
             }
         }
     }

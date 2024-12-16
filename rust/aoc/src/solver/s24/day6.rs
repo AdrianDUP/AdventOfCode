@@ -53,16 +53,14 @@ impl Solver for Day6 {
         let _answer: i64 = 0;
 
         let grid = get_grid(lines);
-        let mut direction = "up";
-        
-        let (mut x, mut y) = find_start(grid);
-        
-        let row_limit:i64 = grid.len().try_into().unwrap();
+        let direction = "up";
+
+        let (mut x, mut y) = find_start(grid.clone());
+
+        let row_limit: i64 = grid.len().try_into().unwrap();
         let column_limit: i64 = grid[0].len().try_into().unwrap();
-        
-        let mut extra_barriers: Vec<String> = vec![];
-        
-        while x >= 0 && x < column_limit && y >= 0 && y < row_limit {
+
+        while x > 0 && x < column_limit && y > 0 && y < row_limit {
             let (next_x, next_y) = next_pos(x, y, direction);
         }
 
