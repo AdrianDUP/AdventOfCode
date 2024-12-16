@@ -113,8 +113,8 @@ impl<T> Grid<T> {
         return None
     }
 
-    fn new_string_from_lines(lines: Vec<String>) -> Grid<String> {
-        let mut grid: grid::Grid<String> = grid::grid![];
+    fn new_string_from_lines(lines: Vec<String>) -> Grid<T> {
+        let mut grid: grid::Grid<T> = grid::grid![];
 
         for line in lines {
             grid.push_row(split_string_into_characters(line));
