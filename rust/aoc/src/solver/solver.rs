@@ -22,3 +22,7 @@ pub fn split_string_into_parts(line: String) -> Vec<String> {
         .map(String::from)
         .collect();
 }
+
+pub fn is_even_number_of_digits(number: i64) -> bool {
+    return number.to_string().len() % 2 == 0;
+}
