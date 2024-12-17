@@ -34,11 +34,10 @@ impl Solver for Day11 {
     }
 }
 
-fn blink(mut numbers: Vec<i64>) -> Vec<i64> {
+fn blink(numbers: Vec<i64>) -> Vec<i64> {
     let mut new_array: Vec<i64> = vec![];
 
-    while numbers.len() > 0 {
-        let number = numbers.remove(0);
+    for number in numbers {
         if number == 0 {
             new_array.push(handle_stone_zero());
         } else if is_even_number_of_digits(number) {
