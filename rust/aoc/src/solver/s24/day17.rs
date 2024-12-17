@@ -35,10 +35,11 @@ impl Computer {
         self.register_a = self.perform_div_instruction(operand, self.register_a);
     }
     
-    fn perform_bxl_opcode() {
+    fn perform_bxl_opcode(&mut self, operand: i64) {
+        self.register_b = self.register_b ^ operand;
     }
     
-    fn perform_bst_opcode() {
+    fn perform_bst_opcode(&mut self, operand: i64) {
     }
 
     fn perform_jnz_instruction() {
@@ -50,10 +51,12 @@ impl Computer {
     fn perform_out_opcode() {
     }
 
-    fn perform_bdv_opcode() {
+    fn perform_bdv_opcode(&self, operand: i64) {
+        self.register_b = self.perform_div_instruction(operand, self.register_a);
     }
 
-    fn perform_cdv_opcode() {
+    fn perform_cdv_opcode(&self, operand: i64) {
+        self.register_c = self.perform_div_instruction(operand, self.register_a);
     }
 
     fn advance_pointer(&mut self) {
