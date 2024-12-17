@@ -17,9 +17,13 @@ struct Computer {
 
 impl Computer {
     fn perform_next_operation(&mut self) {
-        self.current_instruction = self.instructions[self.pointer];
+        self.current_instruction = self.get_pointer_value();
         self.advance_pointer();
-        self.current_operand = self.
+        self.current_operand = self.get_pointer_value();
+    }
+
+    fn execute_instruction(&self, instruction: i64, operand: i64) {
+
     }
 
     fn perform_div_instruction(&self, operand: i64, numerator: i64) -> i64 {
@@ -57,6 +61,7 @@ impl Computer {
     }
 
     fn get_pointer_value(&self) {
+        return self.instructions[self.pointer];
     }
     
     fn get_combo_operand(&self, operand: i64) -> i64 {
