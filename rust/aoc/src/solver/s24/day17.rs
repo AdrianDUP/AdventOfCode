@@ -1,3 +1,7 @@
+use std::{sync::Mutex, thread};
+
+use threadpool::ThreadPool;
+
 use crate::solver::solver::Solver;
 
 pub struct Day17 {
@@ -23,14 +27,12 @@ impl Computer {
 
     fn perform_next_operation(&mut self) {
         self.current_instruction = self.get_pointer_value();
-        println!("Setting instruction {0}", self.current_instruction);
         self.advance_pointer();
         if self.pointer >= self.instructions.len() {
             return;
         }
         self.current_operand = self.get_pointer_value();
         self.advance_pointer();
-        println!("Setting operand {0}", self.current_operand);
 
         self.execute_instruction(self.current_instruction, self.current_operand);
         if self.pointer >= self.instructions.len() {
@@ -39,7 +41,6 @@ impl Computer {
     }
 
     fn execute_instruction(&mut self, instruction: i64, operand: i64) {
-        println!("Executing instruction");
         match instruction {
             0 => self.perform_adv_opcode(operand),
             1 => self.perform_bxl_opcode(operand),
@@ -51,7 +52,6 @@ impl Computer {
             7 => self.perform_cdv_opcode(operand),
             _ => panic!("Invalid instruction"),
         }
-        dbg!(self.register_a, self.register_b, self.register_c);
     }
 
     fn perform_div_instruction(&self, operand: i64, numerator: i64) -> i64 {
@@ -59,22 +59,18 @@ impl Computer {
     }
 
     fn perform_adv_opcode(&mut self, operand: i64) {
-        println!("Performing ADV opcode");
         self.register_a = self.perform_div_instruction(operand, self.register_a);
     }
     
     fn perform_bxl_opcode(&mut self, operand: i64) {
-        println!("Performing BXL opcode with operand {operand}");
         self.register_b = self.register_b ^ operand;
     }
     
     fn perform_bst_opcode(&mut self, operand: i64) {
-        println!("Performing BST opcode");
         self.register_b = self.get_combo_operand(operand) % 8;
     }
 
     fn perform_jnz_instruction(&mut self) {
-        println!("Performing JNZ opcode");
         if self.register_a == 0 {
             return;
         }
@@ -83,27 +79,22 @@ impl Computer {
     }
 
     fn perform_bxc_opcode(&mut self) {
-        println!("Performing BXC opcode");
         self.register_b = self.register_b ^ self.register_c;
     }
 
     fn perform_out_opcode(&mut self) {
-        println!("Perform OUT opcode");
         self.output.push(self.get_combo_operand(self.current_operand)%8);
     }
 
     fn perform_bdv_opcode(&mut self, operand: i64) {
-        println!("Performing BDV opcode");
         self.register_b = self.perform_div_instruction(operand, self.register_a);
     }
 
     fn perform_cdv_opcode(&mut self, operand: i64) {
-        println!("Performing CDV opcode");
         self.register_c = self.perform_div_instruction(operand, self.register_a);
     }
 
     fn advance_pointer(&mut self) {
-        println!("Advancing the pointer");
         self.pointer += 1;
     }
 
@@ -158,12 +149,135 @@ impl Solver for Day17 {
 
         computer.run();
 
-        dbg!(computer.output);
-
         return 0;
     }
 
     fn solution_two(&self, lines: Vec<String>) -> i64 {
+        // let mut handles = vec![];
+        let thread_pool = ThreadPool::new(20);
+        let factor: usize = 100000000000;
+
+        for i in 0..20 {
+            let values = lines.clone();
+            let factor_copy = factor;
+            let _ = thread_pool.execute(move || {
+                let multiplier: usize = i;
+                println!("Multiplier for thread {i} is {multiplier}");
+                let limit: usize = multiplier * factor_copy;
+
+                let mut register_a: i64 = 0;
+                let mut register_b: i64 = 0;
+                let mut register_c: i64 = 0;
+                let mut program_instructions: Vec<i64> = vec![];
+
+                for (index, line) in values.iter().enumerate() {
+                    if index == 0 {
+                        register_a = extract_register_value(line.to_string());
+                    } else if index == 1 {
+                        register_b = extract_register_value(line.to_string());
+                    } else if index == 2 {
+                        register_c = extract_register_value(line.to_string());
+                    }
+
+                    if line == "" {
+                        continue;
+                    }
+
+                    program_instructions = load_instructions(line.to_string());
+                }
+
+                let mut computer = Computer{
+                    register_a,
+                    register_b,
+                    register_c,
+                    instructions: program_instructions.clone(),
+                    pointer: 0,
+                    current_instruction: 0,
+                    current_operand: 0,
+                    output: vec![],
+                };
+
+                for j in limit..limit+factor_copy {
+                    computer.register_a = j as i64;
+                    computer.register_b = 0;
+                    computer.register_c = 0;
+                    computer.output = vec![];
+                    computer.pointer = 0;
+                    // if j % 1000000 == 0 {
+                    //     println!("Starting new loop with {j}");
+                    // }
+                    computer.run();
+
+                    if computer.output == computer.instructions {
+                        println!("Found answer {j}");
+                        break;
+                    }
+                }
+            });
+
+            // handle.join();
+        }
+
+        thread_pool.join();
+
+        // for handle in handles {
+        //     handle.join().unwrap();
+        // }
+
+        // let expected_output = program_instructions.clone();
+        // computer.output = vec![];
+        //
+        // let counter: Mutex<usize> = Mutex::new(0);
+        //
+        // for _ in 0..10 {
+        //     let handle = thread::spawn(move || {
+        //         let mut limit = counter.lock().unwrap();
+        //         *limit += 1000000000;
+        //
+        //         for i in limit-1000000000..limit {
+        //             if i as i64 == register_a {
+        //                 continue;
+        //             }
+        //             computer.register_a = i as i64;
+        //             computer.register_b = 0;
+        //             computer.register_c = 0;
+        //             computer.output = vec![];
+        //             computer.pointer = 0;
+        //             if i % 1000000 == 0 {
+        //                 println!("Starting new loop with {i}");
+        //             }
+        //             computer.run();
+        //
+        //             if computer.output == expected_output {
+        //                 answer = i as i64;
+        //                 break;
+        //             }
+        //         }
+        //     });
+        // }
+
+        // for i in 1000000000..1000000000000 {
+        //     if i == register_a {
+        //         continue;
+        //     }
+        //     computer.register_a = i as i64;
+        //     computer.register_b = 0;
+        //     computer.register_c = 0;
+        //     computer.output = vec![];
+        //     computer.pointer = 0;
+        //     if i % 1000000 == 0 {
+        //         println!("Starting new loop with {i}");
+        //     }
+        //     computer.run();
+        //
+        //     if computer.output == expected_output {
+        //         answer = i as i64;
+        //         break;
+        //     }
+        // }
+
+        // dbg!(computer.output);
+
         return 0;
     }
 }
