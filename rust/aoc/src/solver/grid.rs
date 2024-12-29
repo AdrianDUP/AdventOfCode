@@ -74,7 +74,7 @@ impl<T> Grid<T> {
     }
  
     fn position_up(&self) -> Option<&T> {
-        let next_coordinate = self.get_relative_coordinate_up();
+        let next_coordinate: Point2<i64> = self.get_relative_coordinate_up();
 
         if self.is_point_in_bounds(next_coordinate) {
             return Some(self.get_coordinate(next_coordinate));
