@@ -37,18 +37,27 @@ fn main() {
 }
 
 fn read_file_lines(year: u16, day: u8, test: bool) -> Vec<String> {
-    let file_path: String;
-    if test {
-        file_path = format!("./inputs/{year}/day{day}_test.txt");
+    let rel1 = if test {
+        format!("./inputs/{year}/day{day}_test.txt")
     } else {
-        file_path = format!("./inputs/{year}/day{day}.txt");
-    }
+        format!("./inputs/{year}/day{day}.txt")
+    };
 
-    return fs::read_to_string(file_path)
-        .unwrap()
+    // Also support running from the repo root where inputs are under rust/aoc/inputs
+    let rel2 = if test {
+        format!("./rust/aoc/inputs/{year}/day{day}_test.txt")
+    } else {
+        format!("./rust/aoc/inputs/{year}/day{day}.txt")
+    };
+
+    let contents = fs::read_to_string(&rel1)
+        .or_else(|_| fs::read_to_string(&rel2))
+        .unwrap();
+
+    contents
         .lines()
         .map(String::from)
-        .collect();
+        .collect()
 }
 
 fn get_solvers() -> HashMap<u16, HashMap<u8, Box<dyn Solver>>> {
@@ -68,8 +77,8 @@ fn get_solvers() -> HashMap<u16, HashMap<u8, Box<dyn Solver>>> {
     s24_solvers.insert(6, Box::new(s24::day6::Day6{}));
     s24_solvers.insert(7, Box::new(s24::day7::Day7{}));
     s24_solvers.insert(8, Box::new(s24::day8::Day8{}));
-    // s24_solvers.insert(9, Box::new(s24::day9::Day9{}));
-    // s24_solvers.insert(10, Box::new(s24::day10::Day10{}));
+    s24_solvers.insert(9, Box::new(s24::day9::Day9{}));
+    s24_solvers.insert(10, Box::new(s24::day10::Day10{}));
     s24_solvers.insert(11, Box::new(s24::day11::Day11{}));
     s24_solvers.insert(17, Box::new(s24::day17::Day17{}));
     s24_solvers.insert(20, Box::new(s24::day20::Day20{}));

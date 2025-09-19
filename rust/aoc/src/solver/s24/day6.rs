@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use crate::solver::solver::{split_string_into_characters, Solver};
 
@@ -50,21 +50,27 @@ impl Solver for Day6 {
     }
 
     fn solution_two(&self, lines: Vec<String>) -> i64 {
-        let _answer: i64 = 0;
-
         let grid = get_grid(lines);
-        let direction = "up";
+        let (sx, sy) = find_start(grid.clone());
 
-        let (mut x, mut y) = find_start(grid.clone());
+        let row_limit: i64 = grid.len() as i64;
+        let col_limit: i64 = grid[0].len() as i64;
 
-        let row_limit: i64 = grid.len().try_into().unwrap();
-        let column_limit: i64 = grid[0].len().try_into().unwrap();
+        let mut count: i64 = 0;
 
-        while x > 0 && x < column_limit && y > 0 && y < row_limit {
-            let (next_x, next_y) = next_pos(x, y, direction);
+        for y in 0..row_limit {
+            for x in 0..col_limit {
+                // Can't place on the starting position and must be an empty cell
+                if x == sx && y == sy { continue; }
+                if grid[y as usize][x as usize] != "." { continue; }
+
+                if simulate_loop(&grid, (sx, sy), (x, y)) {
+                    count += 1;
+                }
+            }
         }
 
-        return 0;
+        count
     }
 }
 
@@ -128,5 +134,45 @@ fn hits_barrier(grid: Vec<Vec<String>>, x: i64, y: i64, direction: &str) -> bool
         return true;
     } else {
         return hits_barrier(grid, next_x, next_y, direction);
+    }
+}
+
+
+fn simulate_loop(grid: &Vec<Vec<String>>, start: (i64, i64), obstacle: (i64, i64)) -> bool {
+    let (sx, sy) = start;
+    let (ox, oy) = obstacle;
+    let rows: i64 = grid.len() as i64;
+    let cols: i64 = grid[0].len() as i64;
+
+    let mut x = sx;
+    let mut y = sy;
+    let mut dir: i8 = 0; // 0=up,1=right,2=down,3=left
+
+    let mut seen: HashSet<(i64, i64, i8)> = HashSet::new();
+    seen.insert((x, y, dir));
+
+    loop {
+        let (nx, ny) = match dir {
+            0 => (x, y - 1),
+            1 => (x + 1, y),
+            2 => (x, y + 1),
+            _ => (x - 1, y),
+        };
+
+        if nx < 0 || ny < 0 || nx >= cols || ny >= rows {
+            return false; // exited the grid
+        }
+
+        let blocked = (nx == ox && ny == oy) || grid[ny as usize][nx as usize] == "#";
+        if blocked {
+            dir = (dir + 1) % 4;
+        } else {
+            x = nx;
+            y = ny;
+        }
+
+        if !seen.insert((x, y, dir)) {
+            return true; // loop detected
+        }
     }
 }

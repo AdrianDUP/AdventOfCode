@@ -46,22 +46,47 @@ impl Solver for Day9 {
     }
 
     fn solution_two(&self, lines: Vec<String>) -> i64 {
-        let answer: i64 = 0;
+        if lines.is_empty() { return 0; }
+        let line = &lines[0];
 
-        for line in lines {
-            let characters: Vec<u64> = line.split("")
-                .filter(|x| *x != "")
-                .map(|x| String::from(x).parse::<u64>().unwrap())
-                .collect();
+        let (mut blocks, mut file_starts, file_lens) = parse_disk(line);
+        let mut free_segs = build_free_segments(&blocks);
 
-            let map: Vec<String> = expand_map(characters);
-
-            let fixed_map = move_file_blocks(map.clone(), map.clone());
-
-            dbg!(fixed_map);
-            
+        // move files in decreasing id order
+        let mut fid: i64 = (file_starts.len() as i64) - 1;
+        while fid >= 0 {
+            let L = file_lens[fid as usize];
+            if L == 0 { fid -= 1; continue; }
+            let start = file_starts[fid as usize];
+            // find leftmost fit strictly before current start
+            if let Some(idx) = find_leftmost_fit(&free_segs, start, L) {
+                let seg = free_segs[idx];
+                let new_start = seg.start;
+                // fill target positions with fid
+                for k in 0..L { blocks[new_start + k] = fid; }
+                // update or remove the used free segment prefix
+                if seg.length == L {
+                    free_segs.remove(idx);
+                } else {
+                    free_segs[idx].start += L;
+                    free_segs[idx].length -= L;
+                }
+                // free the old file location
+                for k in 0..L { blocks[start + k] = -1; }
+                // insert freed segment and possibly merge
+                insert_free_segment(&mut free_segs, start, L);
+                // update file start
+                file_starts[fid as usize] = new_start;
+            }
+            fid -= 1;
         }
-        return answer;
+
+        // compute checksum
+        let mut checksum: i64 = 0;
+        for (i, v) in blocks.iter().enumerate() {
+            if *v >= 0 { checksum += (i as i64) * (*v as i64); }
+        }
+        checksum
     }
 }
 
@@ -148,7 +173,7 @@ fn move_elements_to_front(map: Vec<String>) -> Vec<String> {
 }
 
 #[recursive]
-fn move_file_blocks(map: Vec<String>, map_left: Vec<String>) -> Vec<String> {
+fn move_file_blocks(map: Vec<String>, mut map_left: Vec<String>) -> Vec<String> {
     if map_left.is_empty() {
         return map;
     }
@@ -239,4 +264,88 @@ fn move_file_blocks(map: Vec<String>, map_left: Vec<String>) -> Vec<String> {
         }
     }
     return fixed_map;
+}
+
+
+#[derive(Copy, Clone, Debug)]
+struct FreeSeg { start: usize, length: usize }
+
+fn parse_disk(line: &str) -> (Vec<i64>, Vec<usize>, Vec<usize>) {
+    // collect run lengths (digits)
+    let mut run_lens: Vec<usize> = Vec::with_capacity(line.len());
+    for ch in line.chars() {
+        if let Some(d) = ch.to_digit(10) { run_lens.push(d as usize); }
+    }
+    let mut total = 0usize;
+    let mut file_count = 0usize;
+    for (i, v) in run_lens.iter().enumerate() { total += *v; if i % 2 == 0 { file_count += 1; } }
+    let mut blocks: Vec<i64> = vec![-1; total];
+    let mut file_starts: Vec<usize> = vec![0; file_count];
+    let mut file_lens: Vec<usize> = vec![0; file_count];
+
+    let mut pos = 0usize;
+    let mut file_id = 0i64;
+    for (i, &v) in run_lens.iter().enumerate() {
+        if v == 0 { continue; }
+        if i % 2 == 0 {
+            file_starts[file_id as usize] = pos;
+            file_lens[file_id as usize] = v;
+            for k in 0..v { blocks[pos + k] = file_id; }
+            pos += v;
+            file_id += 1;
+        } else {
+            // free already set to -1
+            pos += v;
+        }
+    }
+    (blocks, file_starts, file_lens)
+}
+
+fn build_free_segments(blocks: &Vec<i64>) -> Vec<FreeSeg> {
+    let n = blocks.len();
+    let mut segs: Vec<FreeSeg> = Vec::new();
+    let mut i = 0usize;
+    while i < n {
+        if blocks[i] == -1 {
+            let mut j = i + 1;
+            while j < n && blocks[j] == -1 { j += 1; }
+            segs.push(FreeSeg{start: i, length: j - i});
+            i = j;
+        } else { i += 1; }
+    }
+    segs
+}
+
+fn find_leftmost_fit(segs: &Vec<FreeSeg>, limit: usize, need: usize) -> Option<usize> {
+    for (idx, s) in segs.iter().enumerate() {
+        if s.start >= limit { break; }
+        if s.length >= need { return Some(idx); }
+    }
+    None
+}
+
+fn insert_free_segment(segs: &mut Vec<FreeSeg>, start: usize, length: usize) {
+    // find insertion index to keep sorted by start
+    let mut i = 0usize;
+    while i < segs.len() && segs[i].start < start { i += 1; }
+    segs.insert(i, FreeSeg{start, length});
+    // merge with previous if adjacent
+    if i > 0 {
+        let prev = segs[i-1];
+        let curr = segs[i];
+        if prev.start + prev.length == curr.start {
+            segs[i-1].length += curr.length;
+            segs.remove(i);
+            i -= 1;
+        }
+    }
+    // merge with next if adjacent
+    if i + 1 < segs.len() {
+        let curr = segs[i];
+        let next = segs[i+1];
+        if curr.start + curr.length == next.start {
+            segs[i].length += next.length;
+            segs.remove(i+1);
+        }
+    }
 }
